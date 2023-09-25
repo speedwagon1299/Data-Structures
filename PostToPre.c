@@ -64,7 +64,6 @@ char* post_to_pre(char* str)
         if(isOperand(str[i]))   push(p,op);
         else
         {
-            display(p);
             op1 = pop(p);
             op2 = pop(p);
             char fin[] = "";

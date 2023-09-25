@@ -86,7 +86,7 @@ void in_to_post(char* str)
             else
             {
                 if(prec(str[i]) <= prec(p->arr[p->top]))
-                while(!isEmpty(p))
+                while(!isEmpty(p) || p->arr[p->top] != '(')
                 printf("%c",pop(p));
                 push(p,str[i]);
             }
