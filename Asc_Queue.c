@@ -19,7 +19,7 @@ int isEmpty(AQUEUE* p)
 }
 int isFull(AQUEUE* p)
 {
-    return (p->rear+1)%p->size == (p->front)%p->size;
+    return p->rear == p->size - 1;
 }
 void enqueue(AQUEUE* p, int data)
 {
@@ -33,7 +33,7 @@ void enqueue(AQUEUE* p, int data)
         printf("\nQueue Overflow\n");
         return;
     }
-    int poi = ++p->rear;
+    int poi = p->rear+1;
     for(int i = p->front+1; i <= p->rear; i++)
     {
         if(p->arr[i] >= data)
@@ -45,6 +45,7 @@ void enqueue(AQUEUE* p, int data)
     for(int i = p->rear; i >= poi; i--)
     p->arr[i+1] = p->arr[i];
     p->arr[poi] = data;
+    p->rear++;
     return;
 }
 int dequeue(AQUEUE* p)
