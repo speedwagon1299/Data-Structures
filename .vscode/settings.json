@@ -1,5 +1,6 @@
 {
     "files.associations": {
         "asc_queue": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }
