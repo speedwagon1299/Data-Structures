@@ -1,109 +1,102 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <ctype.h>
 
-typedef struct Node 
+typedef struct node 
 {
-    char data;
-    struct Node* left;
-    struct Node* right;
+    int data;
+    struct node *left, *right;
 }node;
 
-// Define a stack structure for the tree nodes
-typedef struct StackNode {
-    TreeNode* treeNode;
-    struct StackNode* next;
-} StackNode;
-
-// Stack functions
-StackNode* createStackNode(TreeNode* treeNode) {
-    StackNode* node = (StackNode*)malloc(sizeof(StackNode));
-    node->treeNode = treeNode;
-    node->next = NULL;
-    return node;
+node* createNode(int value) 
+{
+    node* nn = (node*)malloc(sizeof(node));
+    nn->data = value;
+    nn->left = nn->right = NULL;
+    return nn;
 }
 
-void push(StackNode** top, TreeNode* treeNode) {
-    StackNode* newNode = createStackNode(treeNode);
-    newNode->next = *top;
-    *top = newNode;
+node* insert(node* root, int value) 
+{
+    if (root == NULL)   return createNode(value);
+    if (value < root->data) root->left = insert(root->left, value);
+    else root->right = insert(root->right, value);
+    return root;        //think of it as putting all the pieces back together
 }
 
-TreeNode* pop(StackNode** top) {
-    if (*top == NULL) {
-        return NULL;
-    }
-    TreeNode* treeNode = (*top)->treeNode;
-    StackNode* temp = *top;
-    *top = (*top)->next;
-    free(temp);
-    return treeNode;
+node* findMin(node* nn) 
+{
+    while (nn->left) nn = nn->left;
+    return nn;
 }
 
-// Expression tree functions
-TreeNode* createExpressionTree(char postfix[]) {
-    StackNode* stack = NULL;
-
-    for (int i = 0; postfix[i] != '\0'; i++) {
-        TreeNode* newNode = (TreeNode*)malloc(sizeof(TreeNode));
-        newNode->data = postfix[i];
-        newNode->left = newNode->right = NULL;
-
-        if (isdigit(postfix[i])) {
-            push(&stack, newNode);
-        } else {
-            newNode->right = pop(&stack);
-            newNode->left = pop(&stack);
-            push(&stack, newNode);
+node* deleteNode(node* root, int val)
+{
+    if(!root)   return NULL;
+    if(val < root->data) root->left = deleteNode(root->left,val);
+    else if(val > root->data)    root->right = deleteNode(root->right,val);
+    else
+    {
+        if(!root->left)
+        {
+            node* temp = root->right;
+            free(root);
+            return temp;
+        }
+        else if(!root->right)
+        {
+            node* temp = root->left;
+            free(root);
+            return temp;
+        }
+        else
+        {
+            node* temp = findMin(root->right);
+            root->data = temp->data;
+            root->right = deleteNode(root->right, temp->data);
         }
     }
-
-    return pop(&stack);
+    return root;
 }
 
-int evaluateExpressionTree(TreeNode* root) {
-    if (root == NULL) {
-        return 0;
-    }
 
-    if (isdigit(root->data)) {
-        return root->data - '0';
-    }
 
-    int leftValue = evaluateExpressionTree(root->left);
-    int rightValue = evaluateExpressionTree(root->right);
 
-    switch (root->data) {
-        case '+': return leftValue + rightValue;
-        case '-': return leftValue - rightValue;
-        case '*': return leftValue * rightValue;
-        case '/': return leftValue / rightValue;
-        default: return 0; // Handle invalid operators as needed
-    }
-}
 
-void freeExpressionTree(TreeNode* root) {
+
+
+
+// Function to perform inorder traversal of the BST
+void inorderTraversal(node* root) {
     if (root != NULL) {
-        freeExpressionTree(root->left);
-        freeExpressionTree(root->right);
-        free(root);
+        inorderTraversal(root->left);
+        printf("%d ", root->data);
+        inorderTraversal(root->right);
     }
 }
 
 int main() {
-    char postfixExpression[] = "23*5+";
-    
-    TreeNode* expressionTree = createExpressionTree(postfixExpression);
+    node* root = NULL;
 
-    if (expressionTree != NULL) {
-        printf("Postfix Expression: %s\n", postfixExpression);
-        printf("Result: %d\n", evaluateExpressionTree(expressionTree));
+    // Insert nodes into the BST
+    root = insert(root, 50);
+    root = insert(root, 30);
+    root = insert(root, 20);
+    root = insert(root, 40);
+    root = insert(root, 70);
+    root = insert(root, 60);
+    root = insert(root, 80);
 
-        // Free the memory used by the expression tree
-        freeExpressionTree(expressionTree);
-    } else {
-        printf("Failed to create expression tree.\n");
-    }
+    printf("Original BST: ");
+    inorderTraversal(root);
+    printf("\n");
+
+    // Delete a node from the BST
+    int keyToDelete = 30;
+    root = deleteNode(root, keyToDelete);
+
+    printf("BST after deleting %d: ", keyToDelete);
+    inorderTraversal(root);
+    printf("\n");
 
     return 0;
 }
