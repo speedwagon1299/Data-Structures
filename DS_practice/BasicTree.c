@@ -165,10 +165,10 @@ void preorder(Tree* t)
     push(p,root);
     while(!isEmpty(p))
     {
-        root = top(p);  pop(p);
+        root = top(p); pop(p);
         printf("%d ",root->val);
-        if(root->left)  push(p,root->left);
         if(root->right) push(p,root->right);
+        if(root->left)  push(p,root->left);
     }
     free(p);
 }
@@ -186,22 +186,19 @@ void inorder(Tree* t)
             push(p,root);
             root = root->left;
         }
-        if(isEmpty(p)) break;
-        else
-        {
-            root = top(p); pop(p);
-            printf("%d ", root->val);
-            root = root->right;
-        }
+        if(isEmpty(p))   break;
+        root = top(p);  pop(p);
+        printf("%d ",root->val);
+        root = root->right;
     }
     while(root || !isEmpty(p));
     free(p);
-} 
+}
 
 void postorder(Tree* t)
 {
-    node *root = t->head, *temp;
-    if(!root)   return;
+    node* root = t->head;
+    if(!root) return;
     STACK* p = (STACK*) malloc(sizeof(STACK));
     initStack(p);
     do
@@ -211,19 +208,20 @@ void postorder(Tree* t)
             push(p,root);
             root = root->left;
         }
-        temp = top(p)->right;
-        if(temp)  root = temp;
+        if(isEmpty(p))  break;
+        node* temp = top(p)->right;
+        if(temp)    root = temp;
         else
         {
             temp = top(p); pop(p);
             printf("%d ",temp->val);
-            while(!isEmpty(p) && temp == top(p)->right)
+            while(!isEmpty(p) && top(p)->right == temp)
             {
                 temp = top(p); pop(p);
                 printf("%d ",temp->val);
             }
         }
-    }
+    } 
     while(root || !isEmpty(p));
     free(p);
 }
@@ -246,12 +244,11 @@ void levelorder(Tree* t)
 
 int search(node* root, int val)
 {
-    if(root)
-    {
-        if(root->val == val)    return 1;
-        if(root->left)  search(root->left,val);
-        if(root->right) search(root->right,val);
-    }
+    static int found = 0;
+    if(root->val == val)    {found = 1; return 0;}
+    if(root->left && !found)  search(root->left,val);
+    if(root->right && !found) search(root->right,val);
+    return found;
 }
 
 node* copy(node* root)
@@ -289,6 +286,17 @@ int equal(node* root1, node* root2)
     return (!root1 && !root2) || (root1 && root2 && (root1->val == root2->val) && equal(root1->left,root2->left) && equal(root1->right,root2->right));
 }
 
+int printAnc(node* root, int val)
+{
+    if(!root)   return 0;
+    if(root->val == val)    return 1;
+    if(printAnc(root->left,val)|| printAnc(root->right,val))
+    {
+        printf("%d ",root->val);
+        return 1;
+    }
+}
+
 int main()
 {
     Tree* t = (Tree*) malloc(sizeof(Tree));
@@ -296,9 +304,9 @@ int main()
     t->head = create(5);
     t->head->left = create(3);
     t->head->right = create(8);
-    t->head->left->left = create(1);
+    t->head->left->left = create(4);
     // t->head->left->right = create(4);
-    t->head->right->left = create(7);
+    t->head->right->left = create(2);
     t->head->right->right = create(9);
     printf("\nPre Order: "); preorder(t);
     printf("\nIn Order: ");   inorder(t);
@@ -308,7 +316,7 @@ int main()
     initTree(n);
     n->head = copy(t->head);
     printf("\n");
-    printf("\nPresence of element 10: %d",search(n->head,10));
+    printf("\nPresence of element 2: %d",search(n->head,8));
     printf("\nHeight: %d ",height(n->head));
     printf("\nNumber of Nodes: %d ",nodes(n->head));
     printf("\nNumber of Leaves: %d ",leaves(n->head));
@@ -317,5 +325,8 @@ int main()
     nn->val = 10; nn->left = nn->right = NULL;
     n->head->left->right = nn;
     printf("\nNew Equality: %d",equal(n->head,t->head));
+    node* temp =  t->head->left->left;
+    printf("\nAncestors of %d are: ",temp->val);
+    printAnc(t->head,temp->val);
     return 0;
 }

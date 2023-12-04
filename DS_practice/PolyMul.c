@@ -116,7 +116,7 @@ POLY* mul(POLY* a, POLY* b)
                 polyattach(c,p1->c*p2->c,p1->e+p2->e);
                 flag = 0;
             }
-            f2 = 0;
+            f2 = 0; f3 = 1;
         }
         f1 = 0; f2 = 1;
     }

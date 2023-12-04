@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <string.h>
 
 typedef struct Node 
 {
@@ -68,51 +69,84 @@ node* pop(STACK* p)
     return temp->nn;
 }
 
+// node* create(char val)
+// {
+//     node* nn = (node*) malloc(sizeof(node));
+//     nn->left = nn->right = NULL;
+//     nn->data = val;
+// }
+
+// node* createExpressionTree(char* postfix) 
+// {
+//     STACK* p = initStack();
+//     for(int i = 0; postfix[i] != '\0'; i++) 
+//     {
+//         node* nn = create(postfix[i]);
+//         if (isdigit(postfix[i])) 
+//         {
+//             push(p,nn);
+//         } 
+//         else 
+//         {
+//             nn->right = pop(p);
+//             nn->left = pop(p);
+//             push(p, nn);
+//         }
+//     }
+//     return pop(p);
+// }
+
 node* create(char val)
 {
     node* nn = (node*) malloc(sizeof(node));
-    nn->left = nn->right = NULL;
     nn->data = val;
+    nn->right = nn->left = NULL;
+    return nn;
 }
 
-node* createExpressionTree(char* postfix) 
+char* rev(char* str)
 {
-    STACK* p = initStack();
-    for(int i = 0; postfix[i] != '\0'; i++) 
+    int len = strlen(str);
+    char temp;
+    for(int i = 0; i <= len/2; i++)
     {
-        node* nn = create(postfix[i]);
-        if (isdigit(postfix[i])) 
+        temp = str[i];
+        str[i] = str[len-i-1];
+        str[len-i-1] = temp;
+    }
+}
+
+node* createExpressionTree(char* prefix)
+{
+    rev(prefix);
+    STACK* p = initStack(p);
+    for(int i = 0; i < strlen(prefix); i++)
+    {
+        node* nn = create(prefix[i]);
+        if(isdigit(prefix[i])) push(p,nn);
+        else
         {
-            push(p,nn);
-        } 
-        else 
-        {
-            nn->right = pop(p);
             nn->left = pop(p);
-            push(p, nn);
+            nn->right = pop(p);
+            push(p,nn);
         }
     }
     return pop(p);
 }
 
-int evaluateExpressionTree(node* root) {
-    if (root == NULL) {
-        return 0;
-    }
-
-    if (isdigit(root->data)) {
-        return root->data - '0';
-    }
-
-    int leftValue = evaluateExpressionTree(root->left);
-    int rightValue = evaluateExpressionTree(root->right);
-
-    switch (root->data) {
-        case '+': return leftValue + rightValue;
-        case '-': return leftValue - rightValue;
-        case '*': return leftValue * rightValue;
-        case '/': return leftValue / rightValue;
-        default: return 0; // Handle invalid operators as needed
+int evaluateExpressionTree(node* root)
+{
+    if(!root)   return 0;
+    if(isdigit(root->data)) return root->data - '0';
+    int lv = evaluateExpressionTree(root->left);
+    int rv = evaluateExpressionTree(root->right);
+    switch(root->data)
+    {
+        case '+': return lv + rv;
+        case '-': return lv - rv;
+        case '*': return lv*rv;
+        case '/': return lv/rv;
+        default: return 0;
     }
 }
 
@@ -125,7 +159,7 @@ void freeExpressionTree(node* root) {
 }
 
 int main() {
-    char postfixExpression[] = "23*5+6-";
+    char postfixExpression[] = "-+5*236";
     
     node* root = createExpressionTree(postfixExpression);
 

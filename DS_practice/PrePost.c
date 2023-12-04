@@ -25,75 +25,75 @@ STACK* initStack(int size)
     return p;
 }
 
-node* insert(node* prev, char* val)
+int isEmpty(STACK* p) { return p->top == -1;}
+int isFull(STACK* p) {  return p->top == p->size-1;}
+
+node* newNode(char* val)
 {
     node* nn = (node*) malloc(sizeof(node));
-    nn->val = (char*) calloc(15,sizeof(char));
+    nn->next = NULL;
     nn->val = strdup(val);
-    nn->next = prev->next;
-    prev->next = nn;
     return nn;
 }
-
-int isFull(STACK* p){  return p->top == p->size - 1;}
-
-int isEmpty(STACK* p){   return p->top == -1;}
 
 void push(STACK* p, char* val)
 {
-    if(isFull(p))   return;
+    if(isFull(p))
+    return;
     p->top++;
-    insert(p->head, val);
+    node* temp = newNode(val);
+    temp->next = p->head->next;
+    p->head->next = temp;
 }
 
-node* top(STACK* p)
-{
-    return p->head->next;
-}
+node* top(STACK* p) {return p->head->next;}
 
 node* pop(STACK* p)
 {
-    if(isEmpty(p))  return NULL;
+    if(isEmpty(p))
+    return NULL;
     p->top--;
-    node* nn = p->head->next;
-    p->head->next = nn->next;
-    return nn;
+    node* temp = p->head->next;
+    p->head->next = temp->next;
+    return temp;
 }
 
 void rev(char* str)
 {
+    int len = strlen(str);
     char temp;
-    for(int i = 0; i <= strlen(str)/2; i++)
+    for(int i = 0; i <= len/2; i++)
     {
         temp = str[i];
-        str[i] = str[strlen(str)-i-1];
-        str[strlen(str)-i-1] = temp;
+        str[i] = str[len-i-1];
+        str[len-i-1] = temp;
     }
 }
 
 void post_pre(char* str)
 {
     STACK* p = initStack(20);
-    char* op = (char*)calloc(2, sizeof(char));
-    char* op1 = (char*)calloc(10, sizeof(char));
-    char* op2 = (char*)calloc(10, sizeof(char));
-    for (int i = 0; str[i] != '\0'; i++) {
+    char* op1 = (char*) calloc(strlen(str),sizeof(char));
+    char* op2 = (char*) calloc(strlen(str),sizeof(char));
+    char* op = (char*) calloc(2,sizeof(char));
+    for(int i = 0; i < strlen(str); i++)
+    {
         op[0] = str[i]; op[1] = '\0';
-        if ('a' <= str[i] && str[i] <= 'z') {
-            push(p, op);
-        } else {
+        if('a' <= str[i] && str[i] <= 'z')  push(p,op);
+        else
+        {
             char temp[] = "";
-            op1 = pop(p)->val;
             op2 = pop(p)->val;
-            strcat(temp, op);
-            strcat(temp, op2);
-            strcat(temp, op1);
-            push(p, temp);
+            op1 = pop(p)->val;
+            strcat(temp,op);
+            strcat(temp,op1);
+            strcat(temp,op2);
+            push(p,temp);
         }
     }
-    char* fin = pop(p)->val; 
-    free(op); free(op1); free(op2); free(p);
-    printf("\nprefix:\n%s", fin); 
+    char* fin = pop(p)->val;
+    printf("\nPrefix: %s",fin);
+    free(op1); free(op2); free(op);
 }
 
 void pre_post(char* str)
@@ -103,26 +103,29 @@ void pre_post(char* str)
     char* op = (char*)calloc(2, sizeof(char));
     char* op1 = (char*)calloc(15, sizeof(char));
     char* op2 = (char*)calloc(15, sizeof(char));
-    for(int i = 0; str[i] != '\0'; i++)
+    
+    for(int i = 0; i < strlen(str); i++)
     {
         op[0] = str[i]; op[1] = '\0';
         if('a' <= str[i] && str[i] <= 'z')  push(p,op);
         else
         {
+            char temp[] = "";
             op2 = pop(p)->val;
             op1 = pop(p)->val;
-            char temp[] = "";
             strcat(temp, op);
-            strcat(temp, op2);
             strcat(temp, op1);
+            strcat(temp, op2);
             push(p,temp);
         }
     }
     char* fin = pop(p)->val;
     rev(fin);
-    free(op); free(op1); free(op2); free(p);
-    printf("\npostfix:\n%s", fin); 
+    printf("\nPostfix:\t%s", fin); 
+    free(op); free(op1); free(op2);
 }
+
+
 
 void post_in(char* str)
 {
@@ -151,13 +154,23 @@ void post_in(char* str)
 }
 
 int prec(char* x)
-{
-    if(!strcmp(x,"+") || !strcmp(x,"-"))    return 1;
-    if(!strcmp(x,"*") || !strcmp(x,"/"))    return 2;
-    return -1;
+{  
+    switch(x[0])
+    {
+        case '+': 
+        case '-':
+            return 1;
+        case '*':
+        case '/':
+            return 2; 
+        case '^':
+            return 3;
+        default: return -1;
+    }
 }
 
-void in_post(char* str) {
+void in_pre(char* str) {
+    rev(str);
     STACK* p = initStack(15);
     char* op = (char*)calloc(2, sizeof(char));
     char* op1 = (char*)calloc(2, sizeof(char));
@@ -167,10 +180,10 @@ void in_post(char* str) {
     {
         op[0] = str[i]; op[1] = '\0';
         if ('a' <= str[i] && str[i] <= 'z') strcat(fin, op);
-        else if (str[i] == '(') push(p, op);
-        else if (str[i] == ')') 
+        else if (str[i] == ')') push(p, op);
+        else if (str[i] == '(') 
         {
-            while (strcmp(top(p)->val, "(") != 0) 
+            while (!isEmpty(p) && strcmp(top(p)->val, ")") != 0) 
             {
                 op1 = pop(p)->val;
                 strcat(fin, op1);
@@ -181,26 +194,27 @@ void in_post(char* str) {
         {
             if(isEmpty(p) || prec(op) <= prec(top(p)->val)) 
             {
-                while(!isEmpty(p) && strcmp(top(p)->val, "(") != 0) 
+                while(!isEmpty(p) && strcmp(top(p)->val, ")") != 0) 
                 {
                     op1 = pop(p)->val;
                     strcat(fin, op1);
                 }
+                pop(p);
             }
             push(p, op);
         }
     }
-
+    rev(str);
     while (!isEmpty(p)) {
         op1 = pop(p)->val;
         strcat(fin, op1);
     }
-
+    rev(fin);
     free(p);
     free(op);
     free(op1);
 
-    printf("\nPostfix: %s", fin);
+    printf("\nPrefix: %s", fin);
     free(fin); 
 }
 
@@ -210,10 +224,11 @@ int main()
     char* str = (char*) calloc(10,sizeof(char));
     printf("Enter Infix:\n");
     scanf("%s",str);
-    in_post(str);
+    in_pre(str);
     // post_in(str);
+    // pre_post(str);
     // post_pre(str);
     // rev(str);
-    // pre_post(str);
+    
     return 0;
 }

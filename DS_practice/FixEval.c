@@ -60,23 +60,24 @@ node* pop(STACK* p)
 
 int postfix_eval(char* str)
 {
-    STACK* p = initStack(20);
-    for(int i = 0; str[i] != '\0'; i++)
+    STACK* p = initStack(10);
+    for(int i = 0; i < strlen(str); i++)
     {
-        if(str[i] == '+' || str[i] == '-' || str[i] == '*' || str[i] == '/')
+        if(str[i] == '+' || str[i] == '-' || str[i] == '/' || str[i] == '*')
         {
             int t2 = pop(p)->val, t1 = pop(p)->val;
             int temp = 0;
             if(str[i] == '+') temp = t1+t2;
             else if(str[i] == '-') temp = t1-t2;
             else if(str[i] == '*') temp = t1*t2;
-            else if(str[i] == '/') temp = t1/t2; 
+            else temp = t1/t2;
             push(p,temp);
         }
         else    push(p,str[i]-'0');
     }
     return pop(p)->val;
 }
+
 
 void rev(char* str)
 {
@@ -119,6 +120,5 @@ int main()
     printf("\n%d",postfix_eval(str));
     printf("\nEnter the prefix expression:\n");
     scanf("%s",str);
-    printf("\n%d",prefix_eval(str)); 
-    printf("%s",str);  
+    printf("\n%d",prefix_eval(str));  
 }
