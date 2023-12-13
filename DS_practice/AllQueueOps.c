@@ -141,9 +141,9 @@ node* dequeue_prio(DQ* p)
         if(curr->next == p->rear->next)
         {
             p->rear->next = curr;
-            node* temp = curr->next;
-            curr->next = NULL;
-            return temp;
+            // node* temp = curr->next;
+            // curr->next = NULL;
+            // return temp;
         }
         node* temp = curr->next;
         curr->next = curr->next->next;

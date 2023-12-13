@@ -139,12 +139,12 @@ void post_in(char* str)
         if('a' <= str[i] && str[i] <= 'z')  push(p,op);
         else
         {
-            op1 = pop(p)->val;
             op2 = pop(p)->val;
+            op1 = pop(p)->val;
             char temp[] = "";
-            strcat(temp,op2);
-            strcat(temp,op);
             strcat(temp,op1);
+            strcat(temp,op);
+            strcat(temp,op2);
             push(p,temp);
         }
     }

@@ -102,7 +102,9 @@ int printAnc(node* root, int val)
     if(printAnc(root->left,val)|| printAnc(root->right,val))
     {
         printf("%d ",root->val);
+        return 1;
     }
+    return 0;
 }
 
 int main()
